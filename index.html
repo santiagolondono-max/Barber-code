@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Barber Code — Prototipo navegable</title>
+<link rel="icon" href="data:,">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4efe6;--ink:#1d1b19;--card:#fff;--gold:#b8863b;--dark:#22201e;--hdr:#f1ebe0;--mut:#6b655d;--line:#ddd3c2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171614;--ink:#f1ebe0;--card:#26231f;--gold:#d4a35a;--dark:#0f0e0d;--mut:#a39a8c;--line:#3a352e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#171614;--ink:#f1ebe0;--card:#26231f;--gold:#d4a35a;--dark:#0f0e0d;--mut:#a39a8c;--line:#3a352e;color-scheme:dark}
+html{scroll-padding-top:60px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:Oswald,Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase;margin:0}
+header{background:var(--dark);color:var(--hdr);padding:28px 20px 18px;text-align:center}
+header h1{font-size:30px;color:var(--gold)}header p{margin:6px 0 0;color:var(--hdr);opacity:.8}
+nav.top2{position:sticky;top:0;z-index:5;background:var(--dark);display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px}
+nav.top2 a{color:var(--hdr);text-decoration:none;padding:6px 12px;border:1px solid var(--gold);border-radius:20px;font-size:13px}
+main{max-width:1100px;margin:0 auto;padding:10px 18px 60px}
+section{margin-top:36px}section>h2{font-size:22px;border-bottom:2px solid var(--gold);padding-bottom:6px;margin-bottom:14px}
+.lead{color:var(--mut);margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;justify-items:center}
+figure{margin:0;text-align:center}figcaption{margin-top:8px;font-weight:600;font-size:13px}
+.phone{width:300px;height:580px;border:8px solid #111;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);text-align:left}
+.top{background:var(--dark);color:var(--hdr);padding:14px;display:flex;align-items:center;gap:8px;font-family:Oswald,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.bk{background:none;border:0;color:var(--gold);font-size:24px;line-height:1;cursor:pointer;padding:0 6px}
+.bd{flex:1;padding:14px;overflow:auto;display:flex;flex-direction:column;gap:9px}
+.bd h2{font-size:18px;border:0;margin:0;padding:0}
+.m{color:var(--mut);margin:0;font-size:13px}.sm{font-size:11px;text-align:center}
+input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+.btn{width:100%;min-height:46px;border:0;border-radius:8px;background:var(--gold);color:#1d1b19;font:600 15px Inter,sans-serif;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.ghost{flex:1;min-height:42px;border:1px solid var(--gold);background:none;color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+.lk{color:var(--gold);text-align:center;cursor:pointer;font-size:14px;text-decoration:underline}
+.row{display:flex;gap:6px}
+.logo{width:64px;height:64px;border-radius:50%;background:var(--dark);color:var(--gold);display:grid;place-items:center;font-size:30px;align-self:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;width:100%}
+.card.on{border:2px solid var(--gold)}
+.card .g{flex:1}.card small{display:block;color:var(--mut);font-size:12px}
+.av{width:42px;height:42px;border-radius:50%;background:var(--dark);color:var(--gold);display:grid;place-items:center;font:600 16px Oswald,sans-serif}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--gold);color:#1d1b19;border-color:var(--gold)}
+.chip:disabled{text-decoration:line-through;opacity:.4;cursor:not-allowed}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.steps{display:flex;gap:4px}.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps i.on{background:var(--gold)}
+.nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
+.nav button{flex:1;padding:12px 2px;border:0;background:none;color:var(--mut);font:inherit;font-size:12px;cursor:pointer;min-height:46px}
+.nav button.on{color:var(--gold);font-weight:600}
+.ok{width:64px;height:64px;border-radius:50%;background:var(--gold);color:#1d1b19;display:grid;place-items:center;font-size:32px;align-self:center}
+.sum{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.sum p{margin:3px 0;display:flex;justify-content:space-between;font-size:14px}
+.tl{display:flex;gap:8px;align-items:stretch}.tl b{width:44px;font-size:12px;color:var(--mut);padding-top:10px}
+.tl .card{padding:9px;font-size:13px}.tl .blk{background:repeating-linear-gradient(45deg,var(--line),var(--line) 4px,transparent 4px,transparent 8px)}
+.free{border-style:dashed;color:var(--mut)}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kpi div{background:var(--dark);color:var(--hdr);border-radius:10px;padding:10px;text-align:center}.kpi b{display:block;font:700 22px Oswald,sans-serif;color:var(--gold)}.kpi span{font-size:11px}
+.bar{height:8px;border-radius:4px;background:var(--line);margin-top:4px}.bar i{display:block;height:100%;border-radius:4px;background:var(--gold)}
+.seg{display:flex}.seg button{flex:1;padding:9px;border:1px solid var(--gold);background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}.seg .on{background:var(--gold);color:#1d1b19}
+.err{color:#d9503f;font-size:13px;margin:0}.err:empty{display:none}
+.note{background:var(--card);border:1px solid var(--gold);border-radius:8px;padding:8px 10px;font-size:13px;margin:0}
+.bd>.ghost{flex:none}
+/* modo wireframe: baja fidelidad, sin color */
+.wf{--bg:#fff;--card:#fff;--ink:#222;--gold:#444;--dark:#e6e6e6;--hdr:#222;--mut:#777;--line:#999;pointer-events:none;font-family:"Comic Sans MS","Segoe Print",cursive,sans-serif}
+.wf *{font-family:inherit!important;border-radius:3px!important}
+.wf .btn,.wf .chip.on,.wf .seg .on{background:#cfcfcf!important;color:#222!important;border:1.5px solid #222!important}
+.wf .av,.wf .logo,.wf .ok,.wf .kpi div{background:#ddd!important;color:#222!important;border:1.5px solid #555}
+.wf .card,.wf input,.wf .sum,.wf .chip,.wf .ghost{border:1.5px solid #555!important}
+.wf .kpi b{color:#222!important}
+.protowrap{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.tip{max-width:320px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.tip ul{margin:8px 0 0;padding-left:18px}
+.dcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.dc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.dc h3{font-size:16px;color:var(--gold)}.dc .rf{font-size:12px;color:var(--mut);margin:2px 0 8px}
+.dc p{margin:6px 0;font-size:14px}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+#wireframes,#flujo,#descripcion,header,nav.top2{display:none!important}
+main{padding-top:24px}#prototipo>h2{text-align:center}html{scroll-padding-top:0}
+</style></head>
+<body>
+<header><h1>✂ Barber Code</h1><p>Actividad 2 · De los requisitos al prototipo — Proyecto Integrado I</p></header>
+<nav class="top2"><a href="#wireframes">Wireframes</a><a href="#flujo">Flujo de navegación</a><a href="#descripcion">Descripción</a><a href="#prototipo">Prototipo</a></nav>
+<main>
+<section id="wireframes"><h2>1. Wireframes (10 pantallas)</h2>
+<p class="lead">Diseño de baja fidelidad pensado para celular (RNF04, RNF05). Cada pantalla indica los requisitos que cubre.</p>
+<div class="grid" id="wfgrid"></div></section>
+
+<section id="flujo"><h2>2. Flujo de navegación</h2>
+<p class="lead">Cómo se desplaza cada rol. La reserva del cliente se completa en 4 pasos más la confirmación (máximo 5, según RNF04).</p>
+<div class="scroll"><pre class="mermaid">
+flowchart TD
+A[Inicio de sesión] -->|Crear cuenta| R[Registro]
+R --> A
+A -->|Rol cliente| B[1. Servicios]
+B --> C[2. Elegir barbero]
+C --> D[3. Fecha y hora]
+D --> E[4. Confirmar reserva]
+E --> F[Cita confirmada]
+F --> G[Mis citas]
+F -->|Nueva reserva| B
+A -->|Rol cliente| G
+G -->|Cancelar cita| G
+G -->|Reservar| B
+G -->|Salir| A
+A -->|Rol barbero| H[Agenda del barbero]
+H -->|Bloquear o liberar horario| H
+H -->|Salir| A
+A -->|Rol administrador| I[Panel de administración]
+I -->|Gestionar barberos, servicios, horarios| I
+I -->|Salir| A
+</pre></div></section>
+
+<section id="descripcion"><h2>3. Descripción de las interfaces</h2>
+<div class="dcards" id="dcards"></div></section>
+
+<section id="prototipo"><h2>✂ Barber Code · Prototipo navegable</h2>
+<div class="protowrap"><div id="proto"></div>
+<div class="tip"><h3>Cómo probarlo</h3><ul>
+<li>Entra como <b>Cliente</b> y haz una reserva completa: servicio → barbero → fecha y hora → confirmar.</li>
+<li>Los horarios tachados ya están ocupados (RF05).</li>
+<li>En <b>Mis citas</b> puedes cancelar (RF06).</li>
+<li>Sal y entra como <b>Barbero</b>: toca un horario libre para bloquearlo (RF09).</li>
+<li>Entra como <b>Admin</b> para ver ocupación y gestión.</li></ul></div></div></section>
+</main>
+
+<script type="module">
+const money=n=>"$"+Number(n).toLocaleString("es-CO");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const SV=[["Corte clásico","30 min","$25.000"],["Barba","20 min","$15.000"],["Corte + barba","50 min","$35.000"],["Cejas","10 min","$8.000"]];
+const BA=["Carlos","Andrés","Mateo"],DT=["Lun 9 nov","Mar 10 nov","Mié 11 nov","Jue 12 nov","Vie 13 nov"];
+const HR=["09:00","10:00","11:00","12:00","14:00","15:00","16:00","17:00"];
+let nid=100;
+// Datos de ejemplo: el prototipo no tiene base de datos, todo vive en esta variable.
+let S={sc:"login",svc:null,bar:null,date:0,time:null,adm:"Barberos",tab:"hoy",ad:0,add:false,conf:null,msg:"",err:"",
+appts:[
+{id:1,s:"Corte + barba",b:"Andrés",d:0,t:"10:00",c:"Tú",mine:true},
+{id:2,s:"Corte clásico",b:"Carlos",d:0,t:"09:00",c:"Juan P."},
+{id:3,s:"Barba",b:"Carlos",d:0,t:"10:00",c:"Luis M."},
+{id:4,s:"Corte + barba",b:"Carlos",d:0,t:"15:00",c:"Camilo R."},
+{id:5,s:"Corte clásico",b:"Mateo",d:0,t:"11:00",c:"Pedro G."},
+{id:6,s:"Corte clásico",b:"Mateo",d:1,t:"14:00",c:"Sara L."},
+{id:7,s:"Barba",b:"Carlos",d:1,t:"11:00",c:"Iván T."},
+{id:8,s:"Cejas",b:"Andrés",d:2,t:"09:00",c:"Julián A."}],
+blocks:[{b:"Carlos",d:0,t:"12:00"}]};
+// Un horario está ocupado si tiene una cita reservada O un bloqueo del barbero (RF05, RF09)
+const isBlocked=(b,d,t)=>S.blocks.some(x=>x.b==b&&x.d==d&&x.t==t);
+const apptAt=(b,d,t)=>S.appts.find(a=>a.b==b&&a.d==d&&a.t==t);
+const busy=(b,d,t)=>!!apptAt(b,d,t)||isBlocked(b,d,t);
+const top=(t,b)=>`<div class="top">${b?`<button class="bk" onclick="go('${b}')">‹</button>`:""}<b>${t}</b></div>`;
+const steps=n=>`<div class="steps">${[1,2,3,4].map(i=>`<i class="${i<=n?"on":""}"></i>`).join("")}</div><p class="m">Paso ${n} de 4</p>`;
+const nav=a=>`<div class="nav"><button class="${a=="services"?"on":""}" onclick="go('services')">✂ Reservar</button><button class="${a=="mine"?"on":""}" onclick="go('mine')">📅 Mis citas</button><button onclick="go('login')">Salir</button></div>`;
+const note=()=>S.msg?`<p class="note">${esc(S.msg)}</p>`:"";
+const errp=()=>`<p class="err" id="err">${esc(S.err)}</p>`;
+const V={
+login:()=>[top("Barber Code"),`<div class="bd"><div class="logo">✂</div><h2 style="text-align:center">Bienvenido</h2><p class="m" style="text-align:center">Reserva tu cita sin llamar ni hacer fila</p>${note()}<input id="em" placeholder="Correo"><input id="pw" type="password" placeholder="Contraseña">${errp()}<button class="btn" onclick="login()">Iniciar sesión</button><a class="lk" onclick="go('reg')">Crear cuenta nueva</a><p class="m sm">Entrada rápida de demo</p><div class="row"><button class="ghost" onclick="enter('cliente')">Cliente</button><button class="ghost" onclick="enter('barbero')">Barbero</button><button class="ghost" onclick="enter('admin')">Admin</button></div></div>`],
+reg:()=>[top("Crear cuenta","login"),`<div class="bd"><input id="rn" placeholder="Nombre completo"><input id="rt" placeholder="Teléfono"><input id="re" placeholder="Correo"><input id="rp" type="password" placeholder="Contraseña (mínimo 6 caracteres)">${errp()}<button class="btn" onclick="register()">Registrarme</button><p class="m sm">Al registrarte quedas con rol Cliente</p></div>`],
+services:()=>[top("Servicios"),`<div class="bd">${steps(1)}<h2>¿Qué te vas a hacer?</h2>${SV.map((v,i)=>`<button class="card ${S.svc==v[0]?"on":""}" onclick="pickS(${i})"><span class="g">${esc(v[0])}<small>${v[1]}</small></span><b>${v[2]}</b></button>`).join("")}</div>`,nav("services")],
+barber:()=>[top("Tu barbero","services"),`<div class="bd">${steps(2)}<h2>Elige barbero</h2>${BA.map((b,i)=>{const f=HR.find(t=>!busy(b,0,t));return `<button class="card ${S.bar==b?"on":""}" onclick="pickB(${i})"><span class="av">${esc(b[0].toUpperCase())}</span><span class="g">${esc(b)}<small>${f?"Próximo libre hoy: "+f:"Sin horarios hoy"}</small></span>›</button>`}).join("")}</div>`,nav("services")],
+slot:()=>[top("Fecha y hora","barber"),`<div class="bd">${steps(3)}<h2>${esc(S.bar||"Barbero")}</h2><div class="chips">${DT.map((d,i)=>`<button class="chip ${S.date==i?"on":""}" onclick="S.date=${i};S.time=null;S.err='';render()">${d}</button>`).join("")}</div><div class="slots">${HR.map(t=>{const x=busy(S.bar||"Carlos",S.date,t);return `<button class="chip ${S.time==t?"on":""}" ${x?"disabled":""} onclick="S.time='${t}';S.err='';render()">${t}</button>`}).join("")}</div>${S.err?`<p class="err">${esc(S.err)}</p>`:""}<button class="btn" style="margin-top:auto" ${S.time?"":"disabled"} onclick="go('confirm')">Continuar</button></div>`,nav("services")],
+confirm:()=>[top("Confirmar","slot"),`<div class="bd">${steps(4)}<h2>Revisa tu cita</h2><div class="sum"><p><span>Servicio</span><b>${esc(S.svc||"Corte clásico")}</b></p><p><span>Barbero</span><b>${esc(S.bar||"Mateo")}</b></p><p><span>Fecha</span><b>${DT[S.date]}</b></p><p><span>Hora</span><b>${S.time||"10:00"}</b></p></div><button class="btn" style="margin-top:auto" onclick="book()">Confirmar reserva</button></div>`,nav("services")],
+done:()=>[top("Listo"),`<div class="bd"><div class="ok">✓</div><h2 style="text-align:center">¡Cita confirmada!</h2><div class="sum"><p><span>${esc(S.svc||"")}</span><b>${S.time||""}</b></p><p><span>${esc(S.bar||"")}</span><b>${DT[S.date]}</b></p></div><button class="btn" onclick="go('mine')">Ver mis citas</button><button class="ghost" onclick="go('services')">Nueva reserva</button></div>`,nav("services")],
+mine:()=>{const L=S.appts.filter(a=>a.mine);return [top("Mis citas"),`<div class="bd"><h2>Próximas citas</h2>${note()}${L.length?L.map(a=>S.conf==a.id?`<div class="card" style="cursor:default;flex-direction:column;align-items:stretch"><span class="g">¿Cancelar esta cita?<small>${esc(a.s)} · ${esc(a.b)} · ${DT[a.d]} · ${a.t}</small></span><div class="row"><button class="ghost" onclick="S.conf=null;render()">No</button><button class="btn" style="flex:1;min-height:42px" onclick="cancelAppt(${a.id})">Sí, cancelar</button></div></div>`:`<div class="card" style="cursor:default"><span class="g">${esc(a.s)}<small>${esc(a.b)} · ${DT[a.d]} · ${a.t}</small></span><button class="chip" onclick="S.conf=${a.id};S.msg='';render()">Cancelar</button></div>`).join(""):`<p class="m">No tienes citas. ¡Reserva una!</p>`}<button class="btn" style="margin-top:auto" onclick="go('services')">Reservar nueva cita</button></div>`,nav("mine")]},
+agenda:()=>{const b="Carlos",d=S.ad;
+const seg=`<div class="seg"><button class="${S.tab=="hoy"?"on":""}" onclick="S.tab='hoy';render()">Hoy</button><button class="${S.tab=="sem"?"on":""}" onclick="S.tab='sem';render()">Semana</button></div>`;
+let body;
+if(S.tab=="sem"){body=`<p class="m">Toca un día para ver su detalle</p>`+DT.map((x,i)=>{const L=S.appts.filter(a=>a.b==b&&a.d==i).sort((p,q)=>p.t.localeCompare(q.t));const nb=S.blocks.filter(k=>k.b==b&&k.d==i).length;return `<button class="card" onclick="S.ad=${i};S.tab='hoy';render()"><span class="g"><b>${x}</b><small>${L.length} cita${L.length==1?"":"s"}${nb?` · ${nb} bloqueo${nb==1?"":"s"}`:""}</small>${L.map(a=>`<small>${a.t} · ${esc(a.c)} · ${esc(a.s)}</small>`).join("")}</span>›</button>`}).join("")}
+else{body=`<p class="m">${DT[d]} · toca un horario libre para bloquearlo</p>`+HR.map(t=>{const a=apptAt(b,d,t);return `<div class="tl"><b>${t}</b>${a?`<div class="card" style="cursor:default">${esc(a.c)} · ${esc(a.s)}</div>`:isBlocked(b,d,t)?`<button class="card blk" onclick="tg('${t}')">Bloqueado (descanso)</button>`:`<button class="card free" onclick="tg('${t}')">Libre</button>`}</div>`}).join("")}
+return [top("Agenda · Carlos"),`<div class="bd">${seg}${body}<button class="ghost" onclick="go('login')">Salir</button></div>`]},
+admin:()=>{const tot=HR.length*DT.length,pc=b=>Math.round(100*(S.appts.filter(a=>a.b==b).length+S.blocks.filter(k=>k.b==b).length)/tot);
+const all=Math.round(BA.reduce((s,b)=>s+pc(b),0)/BA.length),hoy=S.appts.filter(a=>a.d==0).length;
+const form=S.add?`<div class="sum" style="display:flex;flex-direction:column;gap:8px"><b>${S.adm=="Barberos"?"Nuevo barbero":"Nuevo servicio"}</b><input id="f1" placeholder="${S.adm=="Barberos"?"Nombre del barbero":"Nombre del servicio"}">${S.adm=="Servicios"?`<input id="f2" type="number" min="1" placeholder="Duración en minutos"><input id="f3" type="number" min="1" placeholder="Precio en pesos">`:""}${errp()}<div class="row"><button class="ghost" onclick="S.add=false;S.err='';render()">Cancelar</button><button class="btn" style="flex:1;min-height:42px" onclick="saveAdd()">Guardar</button></div></div>`:"";
+const list=S.adm=="Servicios"?SV.map(v=>`<div class="card" style="cursor:default"><span class="g">${esc(v[0])}<small>${v[1]} · ${v[2]}</small></span></div>`).join(""):S.adm=="Horarios"?`<div class="sum"><p><span>Lun – Vie</span><b>9:00 – 18:00</b></p><p><span>Sábado</span><b>9:00 – 17:00</b></p><p><span>Domingo</span><b>Cerrado</b></p></div>`:BA.map(b=>`<div class="card" style="cursor:default"><span class="av">${esc(b[0].toUpperCase())}</span><span class="g">${esc(b)}<small>Ocupación ${pc(b)}%</small><div class="bar"><i style="width:${pc(b)}%"></i></div></span></div>`).join("");
+return [top("Administración"),`<div class="bd"><div class="kpi"><div><b>${hoy}</b><span>Citas hoy</span></div><div><b>${all}%</b><span>Ocupación semanal</span></div></div><div class="seg">${["Barberos","Servicios","Horarios"].map(x=>`<button class="${S.adm==x?"on":""}" onclick="S.adm='${x}';S.add=false;S.msg='';S.err='';render()">${x}</button>`).join("")}</div>${note()}${list}${form}${S.adm!="Horarios"&&!S.add?`<button class="btn" style="margin-top:auto" onclick="S.add=true;S.msg='';S.err='';render()">+ Agregar</button>`:""}<button class="ghost" onclick="go('login')">Salir</button></div>`]}};
+const D=[["login","Inicio de sesión","RF01, RNF01","Identificar al usuario y enviarlo a su módulo según el rol.","Logo, campos de correo y contraseña, botón «Iniciar sesión», enlace «Crear cuenta».","Valida que los campos no estén vacíos, que el correo sea válido y que la contraseña tenga al menos 6 caracteres. Luego redirige: cliente a Servicios, barbero a su Agenda, administrador al Panel."],
+["reg","Registro","RF01","Crear la cuenta de un cliente nuevo.","Nombre, teléfono, correo, contraseña y botón «Registrarme».","Valida los datos y asigna rol Cliente. En el sistema real la contraseña se guardaría cifrada."],
+["services","Catálogo de servicios (paso 1)","RF02, RF04","Mostrar los servicios con duración y precio para iniciar la reserva.","Indicador de pasos, tarjetas de servicio y barra inferior de navegación.","Al tocar un servicio se guarda la elección y se pasa a elegir barbero."],
+["barber","Elegir barbero (paso 2)","RF03","Que el cliente escoja a su barbero de confianza.","Tarjetas con inicial, nombre y estado de disponibilidad.","Al elegir barbero se consulta su agenda y se abre la pantalla de fecha y hora."],
+["slot","Fecha y hora (paso 3)","RF03, RF05","Mostrar solo los horarios realmente libres del barbero.","Selector de fechas, cuadrícula de horas y botón «Continuar».","Los horarios con cita reservada o bloqueados por el barbero aparecen tachados y no se pueden elegir, evitando cruces."],
+["confirm","Confirmar reserva (paso 4)","RF04","Revisar los datos antes de agendar.","Resumen de servicio, barbero, fecha y hora, y botón «Confirmar reserva».","Verifica de nuevo que el horario siga libre, registra la cita y muestra la confirmación."],
+["done","Cita confirmada","RF04","Dar certeza de que la reserva quedó hecha.","Ícono de éxito, resumen y botones «Ver mis citas» y «Nueva reserva».","Muestra la confirmación en pantalla. El aviso por correo se implementará en la segunda entrega (RF07)."],
+["mine","Mis citas","RF06","Consultar y cancelar citas antes de la hora programada.","Lista de citas con botón «Cancelar» y acceso a nueva reserva.","Pide confirmación antes de cancelar y, al cancelar, libera el horario para otros clientes. Modificar queda para la segunda entrega."],
+["agenda","Agenda del barbero","RF08, RF09","Ver las citas del día y de la semana, y bloquear almuerzos, descansos o días libres.","Pestañas Hoy y Semana, línea de horas con citas, bloques y espacios libres.","Muestra las citas reservadas por los clientes. Tocar un espacio libre lo bloquea; tocarlo de nuevo lo libera. Los bloqueos desaparecen de la disponibilidad del cliente."],
+["admin","Panel de administración","RF10","Dar al propietario control central del negocio.","Indicadores de citas y ocupación, pestañas Barberos, Servicios y Horarios, botón «Agregar».","Permite agregar barberos y servicios. Editar, desactivar y gestionar horarios quedan para una versión futura."]];
+const frame=(a,sc)=>{const p=V[sc]();return `<div class="phone">${p.join("")}</div>`};
+const $p=document.getElementById("proto");
+window.render=()=>{const p=V[S.sc]();$p.innerHTML=`<div class="phone">${p.join("")}</div>`};
+window.go=id=>{S.sc=id;S.err="";S.msg="";S.conf=null;S.add=false;render()};
+window.pickS=i=>{S.svc=SV[i][0];go("barber")};
+window.pickB=i=>{S.bar=BA[i];S.time=null;go("slot")};
+window.enter=r=>{S.ad=0;S.tab="hoy";go(r=="cliente"?"services":r=="barbero"?"agenda":"admin")};
+const q=id=>$p.querySelector("#"+id);
+const val=id=>((q(id)||{}).value||"").trim();
+const er=m=>{q("err").textContent=m};
+const mailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+window.login=()=>{const e=val("em"),p=val("pw");
+if(!e||!p)return er("Escribe tu correo y tu contraseña.");
+if(!mailOk(e))return er("El correo no tiene un formato válido.");
+if(p.length<6)return er("La contraseña debe tener al menos 6 caracteres.");
+enter("cliente")};
+window.register=()=>{const n=val("rn"),t=val("rt"),e=val("re"),p=val("rp");
+if(!n||!t||!e||!p)return er("Completa todos los campos.");
+if(!/^\d{7,10}$/.test(t.replace(/[\s-]/g,"")))return er("El teléfono debe tener entre 7 y 10 dígitos.");
+if(!mailOk(e))return er("El correo no tiene un formato válido.");
+if(p.length<6)return er("La contraseña debe tener al menos 6 caracteres.");
+S.sc="login";S.err="";S.msg="Cuenta creada. Ya puedes iniciar sesión.";S.conf=null;render()};
+// Al confirmar se vuelve a comprobar la disponibilidad (RF05)
+window.book=()=>{if(busy(S.bar,S.date,S.time)){S.err="Ese horario acaba de ocuparse. Elige otro.";S.time=null;S.sc="slot";render();return}
+S.appts.push({id:nid++,s:S.svc,b:S.bar,d:S.date,t:S.time,c:"Tú",mine:true});go("done")};
+window.cancelAppt=id=>{S.appts=S.appts.filter(a=>a.id!=id);S.conf=null;S.msg="Cita cancelada. El horario quedó libre.";render()};
+window.tg=t=>{const b="Carlos",d=S.ad;S.blocks=isBlocked(b,d,t)?S.blocks.filter(k=>!(k.b==b&&k.d==d&&k.t==t)):[...S.blocks,{b,d,t}];render()};
+window.saveAdd=()=>{const n=val("f1");
+if(S.adm=="Barberos"){if(!n)return er("Escribe el nombre del barbero.");if(BA.some(x=>x.toLowerCase()==n.toLowerCase()))return er("Ese barbero ya existe.");BA.push(n);S.msg=`Barbero «${n}» agregado.`}
+else{const du=+val("f2"),pr=+val("f3");if(!n)return er("Escribe el nombre del servicio.");if(SV.some(x=>x[0].toLowerCase()==n.toLowerCase()))return er("Ese servicio ya existe.");if(!(du>0))return er("La duración debe ser un número de minutos mayor que 0.");if(!(pr>0))return er("El precio debe ser un número mayor que 0.");SV.push([n,du+" min",money(pr)]);S.msg=`Servicio «${n}» agregado.`}
+S.add=false;S.err="";render()};
+window.S=S;
+// wireframes y descripciones
+const real=S;S={...real,svc:"Corte clásico",bar:"Mateo",time:"10:00",date:1,blocks:[{b:"Carlos",d:1,t:"12:00"}]};
+document.getElementById("wfgrid").innerHTML=D.map((d,i)=>`<figure><div class="phone wf">${V[d[0]]().join("")}</div><figcaption>${i+1}. ${d[1]}<br><span style="font-weight:400;color:var(--mut)">${d[2]}</span></figcaption></figure>`).join("");
+S=real;
+document.getElementById("dcards").innerHTML=D.map((d,i)=>`<div class="dc"><h3>${i+1}. ${d[1]}</h3><div class="rf">${d[2]}</div><p><b>Propósito:</b> ${d[3]}</p><p><b>Estructura:</b> ${d[4]}</p><p><b>Funcionamiento:</b> ${d[5]}</p></div>`).join("");
+render();
+</script>
+</body></html>
